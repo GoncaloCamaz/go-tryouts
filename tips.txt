@@ -1,0 +1,16 @@
+fmt prints placeholders
+
+%d: Decimal integer
+%b: Binary integer
+%o: Octal integer
+%x: Hexadecimal integer (lowercase)
+%X: Hexadecimal integer (uppercase)
+%f: Floating-point number
+%e: Scientific notation (lowercase)
+%E: Scientific notation (uppercase)
+%s: String
+%q: Double-quoted string
+%v: Default format for the value
+%T: Type of the value
+%p: Pointer address
+
