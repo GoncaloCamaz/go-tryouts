@@ -95,6 +95,6 @@ func main() {
 
 	path := make([]int, 0, len(graph))
 
-	GraphRecursiveDepthFirstPostOrder(graph, 0, visited, &path)
+	GraphRecursiveDepthFirst(graph, 0, visited, &path)
 	fmt.Println("Path:", path)
 }
