@@ -31,6 +31,30 @@ func IterativeBinaryTreeBFS(tree *TreeNode, path *[]int) {
 	}
 }
 
+func RecursiveBinaryTreeBFS(tree *TreeNode, visited map[int]bool, queue []*TreeNode, path *[]int) {
+	// stop recursion if tree is nil
+	// this may happen when we reach a leaf node
+	if tree == nil {
+		return
+	}
+
+	visited[tree.node] = true
+	*path = append(*path, tree.node)
+	// append the left and right nodes to the queue
+	queue = append(queue, tree.left, tree.right)
+
+	// iterate over the queue
+	for _, treeNode := range queue {
+		if treeNode != nil && !visited[treeNode.node] {
+			// remove the first element from the queue
+			queue = queue[1:]
+			// recursively call the function with the current node
+			RecursiveBinaryTreeBFS(treeNode, visited, queue, path)
+		}
+	}
+
+}
+
 func main() {
 	tree := &TreeNode{
 		node: 1,
@@ -57,5 +81,8 @@ func main() {
 	path := []int{}
 
 	IterativeBinaryTreeBFS(tree, &path)
+	fmt.Println("Path followed:", path)
+	path = []int{}
+	RecursiveBinaryTreeBFS(tree, map[int]bool{}, []*TreeNode{tree}, &path)
 	fmt.Println("Path followed:", path)
 }
