@@ -17,6 +17,7 @@ func merge(arr []int, left int, middle int, right int) {
 	leftSize := middle - left + 1
 	rightSize := right - middle
 
+	// make copy of the left and right subarrays
 	tempLeft := make([]int, leftSize)
 	tempRight := make([]int, rightSize)
 
@@ -28,6 +29,7 @@ func merge(arr []int, left int, middle int, right int) {
 		tempRight[j] = arr[middle+1+j]
 	}
 	fmt.Println("Merging array: ", arr, " temp left: ", tempLeft, " temp right: ", tempRight, " left: ", left, " middle: ", middle, " right: ", right)
+	// merge them back into the original array in the correct order
 	for i, j, k := 0, 0, left; k <= right; k++ {
 		if i < leftSize && (j >= rightSize || tempLeft[i] <= tempRight[j]) {
 			arr[k] = tempLeft[i]
@@ -41,19 +43,27 @@ func merge(arr []int, left int, middle int, right int) {
 
 func mergeSortRecursion(arr []int, left int, right int) {
 	if left < right {
+		// split the array in half
 		middle := left + (right-left)/2
 
+		// sort the left half
 		mergeSortRecursion(arr, left, middle)
+		// sort the right half
 		mergeSortRecursion(arr, middle+1, right)
 
+		// merge the two halves
 		merge(arr, left, middle, right)
 	}
 }
 
 func mergeSort(arr []int) {
+	// start the recursion
 	mergeSortRecursion(arr, 0, len(arr)-1)
 }
 
+// Please not that, since we are using slices and a slice is a reference to an array, we don't need to return the sorted array.
+// The array will be sorted in place.
+// Therefore, we don't need to return anything from the mergeSort function.
 func main() {
 	arr := []int{5, 4, 3, 2, 1, 7, 9, 8, 6}
 	mergeSort(arr)
