@@ -2,52 +2,155 @@ package main
 
 import (
 	"fmt"
-	"sync"
+	"math/rand"
+	"time"
+
+	"github.com/fatih/color"
 )
 
-type Income struct {
-	Source string
-	Amount int
+// Here we will implement a producer-consumer pattern
+// For that, we will try to have a pizzeria example
+
+const numberOfPizzas = 10
+
+var PizzasMade, PizzasFailed, Total int
+
+type Producer struct {
+	data chan PizzaOrder
+	quit chan chan error
 }
 
-var wg sync.WaitGroup
+type PizzaOrder struct {
+	pizzaNumber int
+	message     string
+	success     bool
+}
+
+// important function to close the channels
+func (p *Producer) close() error {
+	ch := make(chan error)
+	p.quit <- ch
+	return <-ch
+}
+
+func makePizza(pizzaNumber int) *PizzaOrder {
+	pizzaNumber++
+	if pizzaNumber <= numberOfPizzas {
+		delay := rand.Intn(5) + 1
+		fmt.Printf("Received order #%d\n", pizzaNumber)
+
+		rnd := rand.Intn(12) + 1
+		msg := ""
+		success := false
+
+		if rnd < 5 {
+			PizzasFailed++
+		} else {
+			PizzasMade++
+		}
+
+		Total++
+		fmt.Printf("Making pizza #%d. It will take %d seconds...\n", pizzaNumber, delay)
+		// delay for a bit
+		time.Sleep(time.Duration(delay) * time.Second)
+
+		if rnd <= 2 {
+			msg = fmt.Sprintf("*** We ran out of ingreditens for pizza #%d!", pizzaNumber)
+		} else if rnd <= 4 {
+			msg = fmt.Sprintf("*** The cook quit while making pizza #%d!", pizzaNumber)
+		} else {
+			success = true
+			msg = fmt.Sprintf("Pizza order #%d is ready!", pizzaNumber)
+		}
+
+		p := PizzaOrder{
+			pizzaNumber: pizzaNumber,
+			message:     msg,
+			success:     success,
+		}
+
+		return &p
+	}
+
+	return &PizzaOrder{
+		pizzaNumber: pizzaNumber,
+	}
+}
+
+func pizzeria(pizzaMaker *Producer) {
+	// keep track of which pizza we are making
+	var i = 0
+
+	// try to make pizzas
+	// this cycle will run forever until we receive a quit notification
+	for {
+		currentPizza := makePizza(i)
+
+		if currentPizza != nil {
+			i = currentPizza.pizzaNumber
+			// selects are only useful for channels
+			select {
+			// we tried to make a pizza (we sent data to the data channel)
+			case pizzaMaker.data <- *currentPizza:
+			case quitChan := <-pizzaMaker.quit:
+				// we need to close the channels
+				close(pizzaMaker.data)
+				close(quitChan)
+
+				// we want to exit the go routine
+				return
+			}
+		}
+	}
+}
 
 func main() {
-	// this will have a default value of 0
-	var bankBalance int
-	var balance sync.Mutex
+	rand.Seed(time.Now().UnixNano())
+	color.Cyan("The Pizzeria is open for business")
+	color.Cyan("---------------------------------")
 
-	fmt.Printf("Initial bank balance: $%d.00\n", bankBalance)
-	// this will print a blank line
-	fmt.Println()
-
-	incomes := []Income{
-		{Source: "Job", Amount: 5000},
-		{Source: "Freelance", Amount: 200},
-		{Source: "Lottery", Amount: 1000},
-		{Source: "Gift", Amount: 150},
+	// create a producer
+	pizzaJob := &Producer{
+		data: make(chan PizzaOrder),
+		quit: make(chan chan error),
 	}
 
-	wg.Add(len(incomes))
+	// start the pizzeria
+	go pizzeria(pizzaJob)
 
-	for index, income := range incomes {
-		go func(i int, income Income) {
-			defer wg.Done()
-			for week := 1; week <= 52; week++ {
-				// by locking and unlocking the balance, we are making sure that
-				// only one go routine can access the balance at a time
-				// therefore, there is no race condition here
-				balance.Lock()
-				temp := bankBalance
-				temp += income.Amount
-				bankBalance = temp
-				balance.Unlock()
-				fmt.Printf("On week %d, you earned $%d.00 from %s\n", week, income.Amount, income.Source)
+	// keep track of the pizzas we made
+	for i := range pizzaJob.data {
+		if i.pizzaNumber <= numberOfPizzas {
+			if i.success {
+				color.Green(i.message)
+				color.Green("Order #%d is out for delivery\n", i.pizzaNumber)
+			} else {
+				color.Red(i.message)
+				color.Red("The customer is really mad!\n")
 			}
-		}(index, income)
+		} else {
+			color.Cyan("The Pizzeria is closed for the day")
+			err := pizzaJob.close()
+
+			if err != nil {
+				color.Red("*** Error closing channel!!!", err)
+			}
+		}
 	}
 
-	wg.Wait()
+	color.Cyan("---------------------------------")
+	color.Cyan("Total pizzas made: %d, but failed to make %d, with %d attempts in total.", PizzasMade, PizzasFailed, Total)
 
-	fmt.Printf("Final bank balance: $%d.00\n", bankBalance)
+	switch {
+	case PizzasFailed > 9:
+		color.Red("The pizzeria is a failure!")
+	case PizzasFailed >= 6:
+		color.Yellow("It was not a very good day...")
+	case PizzasFailed >= 4:
+		color.Yellow("It was an ok day!")
+	case PizzasFailed >= 2:
+		color.Yellow("It was a good day!")
+	default:
+		color.Green("It was a great day!")
+	}
 }
