@@ -1,0 +1,8 @@
+In this folder i will implement a problem that takes use of some of the go concurrency mechanisms.
+The idea behind the execise is to have a train that follows a path indefinitly. The train has a capacity
+for a certain number of passangers and should hop from station to another, letting passengers in and out.
+A passenger has an origin and a destination and should leave when arrives at the destination.
+
+In short:
+- Implement a train that runs from station to station and lets passengers in and out
+- Implement passengers that have an origin and destination and try to enter in the train
