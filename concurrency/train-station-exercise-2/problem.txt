@@ -1,0 +1,5 @@
+As we learned in the exercise number 1, the implemented solution only works fine with one passenger.
+Thats because channels do not broadcast to every go routine listening.
+
+Therefore, in this exercise I will try to implement some sort of broadcast server or implement the 
+observer pattern.
