@@ -108,24 +108,21 @@ func (t *Train) runTrain() {
 			if currentStation < t.TotalStops {
 				color.Cyan("[TRAIN MOVING FORWARD] - The train is moving. NEXT STATION: %d **\n", currentStation+1)
 				currentStation++
-				t.CurrentStopChannel <- currentStation
 			} else {
 				color.Red("[END OF LINE] - The Train reached the final stop. NEXT STATION: %d **\n", currentStation-1)
 				t.GoingForward = false
 				currentStation--
-				t.CurrentStopChannel <- currentStation
 			}
 		} else {
 			if currentStation > 0 {
 				color.Cyan("[TRAIN MOVING BACK] - The train is moving. NEXT STATION: %d **\n", currentStation-1)
 				currentStation--
-				t.CurrentStopChannel <- currentStation
 			} else {
 				color.Red("[END OF LINE] - The Train reached the final stop. NEXT STATION: %d **\n", currentStation+1)
 				t.GoingForward = true
 				currentStation++
-				t.CurrentStopChannel <- currentStation
 			}
 		}
+		t.CurrentStopChannel <- currentStation
 	}
 }
