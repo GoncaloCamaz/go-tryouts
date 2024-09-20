@@ -11,3 +11,12 @@ For the train example, i will implement a similar solution but with some small n
 broadcast server works, I will call the broadcast server the TrainPositionReport app where I will mock a scenario where the passengers
 received a notification in their phone that the train has arrived to a certain station. They can choose to board or not if the train will
 go to the station that the passenger wants to go.
+
+
+Conclusion:
+
+The broadcast server worked as expected. However, another problem happened that requires attention.
+I believe the train is not listening all of the passengers even though I changed the code a bit to try to listen
+to every active passenger. It did not work. 
+
+So in a third iteration that i will attack next, i will implement the fan-in pattern in the train side.
