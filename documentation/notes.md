@@ -1,4 +1,5 @@
-Some notes about Go
+Some notes about go...
+==============
 
 Go is a staticly type language. Everytime we create a variable, we assign a type and that type will not change.
 For example, in javascript we can assign:
@@ -28,7 +29,7 @@ We only use := when we are defining a new variable!!!! If we are reassigning a d
 
 ------------------------------------------------------
 
--- Arrays & Slices --
+# Arrays & Slices
 
 Array -> fixed length of records
 Slice -> An array that can grow or shrink

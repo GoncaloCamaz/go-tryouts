@@ -1,4 +1,7 @@
-fmt prints placeholders
+Quick Golang tips
+==============
+
+# fmt prints placeholders
 
 %d: Decimal integer
 %b: Binary integer
@@ -15,7 +18,7 @@ fmt prints placeholders
 %p: Pointer address
 
 
-Arrays vs Slices
+# Arrays vs Slices
 
 	arrays -> fixed size
 	slice -> dynamic lengthOfNumbers
@@ -37,7 +40,7 @@ Arrays vs Slices
 			by the cap() built-in function
 
 
-Pointers
+# Pointers
 
 A pointer is a variable type that stores the memory address of another variable.
 A pointer value is the address of a variable, or nil if it hasn't been initialized yet.

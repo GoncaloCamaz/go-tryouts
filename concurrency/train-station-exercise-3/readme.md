@@ -1,3 +1,10 @@
+Train station exercise 3
+==============
+
+*** Final steps ***
+
+# Conclusions
+
 In the previous train station implementations, I came accross some concurrency challanges.
 On the first iteration of the exercise, only one passenger would board the train because channels
 do not broadcast to all go routines. To address this issue, on the second implementation, I implemented 

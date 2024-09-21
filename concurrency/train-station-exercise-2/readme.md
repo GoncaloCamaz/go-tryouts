@@ -1,3 +1,10 @@
+Train station exercise 2
+==============
+
+*** A broadcasting problem ***
+
+# Problem statement
+
 As we learned in the exercise number 1, the implemented solution only works fine with one passenger.
 Thats because channels do not broadcast to every go routine listening.
 
@@ -13,7 +20,7 @@ received a notification in their phone that the train has arrived to a certain s
 go to the station that the passenger wants to go.
 
 
-Conclusion:
+# Conclusion:
 
 The broadcast server worked as expected. However, another problem happened that requires attention.
 I believe the train is not listening all of the passengers even though I changed the code a bit to try to listen

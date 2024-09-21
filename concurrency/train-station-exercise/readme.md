@@ -1,3 +1,8 @@
+Train station exercise
+==============
+
+*** First steps ***
+
 In this folder i will implement a problem that takes use of some of the go concurrency mechanisms.
 The idea behind the execise is to have a train that follows a path indefinitly. The train has a capacity
 for a certain number of passangers and should hop from station to another, letting passengers in and out.
@@ -20,7 +25,6 @@ solution does not seem that funny to me.
 
 Therefore, i will try to solve this issue with a broadcast server and implement a solution in which
 each passenger will be an observer.
-
 
 In short:
 - Channels do not broadcast, only one go routine will receive its content

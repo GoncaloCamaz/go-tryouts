@@ -1,4 +1,7 @@
-Channels or Wait Groups
+Concurrency overview
+==============
+
+*** Channels or Wait Groups ***
 
 Wait groups are used for synchronization, channels are used to comunicate between go routines.
 
@@ -25,12 +28,11 @@ So, relating to channels, we have buffered and unbuffered channels.
 A channel is always blocking if its full...
 Therefore, a unbuffered channel is always full!! 
 
--- Buffered channels --
+# Buffered channels
 
 msgch := make(chan int, 10) // 10 being the number of ints the channel can accept
 
-
--- Unbuffered channels --
+# Unbuffered channels --
 
 msgch := make(chan int)
 
@@ -61,3 +63,5 @@ func main() {
 }
 
 To use unbuffered channels, we need to be ready to read before start writting.
+
+---

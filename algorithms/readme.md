@@ -1,6 +1,9 @@
+Algorithms
+==============
+
 This file contains a resume about all the algorithms added in this ./algorithms folder.
 
-< Binary Search >
+# Binary Search
 
 Binary search algorithm tries to find an element in the array. For this algorithm to work,
 the array must be sorted.
@@ -16,7 +19,7 @@ This are the steps to implement the algorithm:
 6 - if the mid element is larger than the target, we can discard the left part of the array
 7 - dont forget to add -1 to return a value if the element is not found, when low > high
 
-< Depth first algorithm >
+# Depth first algorithm
 
 Depth first algorithm works by visiting the children of a node before visiting the siblings or neighbours
 In the case of a binary tree, we will try to go left until we cant proceed any further. 
@@ -34,7 +37,7 @@ When using trees, we dont need an temporary array because we can either go left 
 1 - if the tree is null, return because we reached an leaf node
 2 - mark the node as visited and call recursevly the function, first on the left and then on the right
 
-< Breadth first algorithm >
+# Breadth first algorithm
 
 This algorithm works by visiting all the siblings on a node before visiting the children
 Therefore, for this to work, we need to implement a queue system to store the references to each sibling 
@@ -60,7 +63,7 @@ For the recursive version:
 3 - for each member inside the queue, if the member is not visited, remove the first member from the queue
 4 - call recursive function starting on the member
 
-< Insertion sort >
+# Insertion sort
 
 This is a simple sorting algorithm and not very efficient to sort an array
 The way it works is by playing a bit with indexes
@@ -87,7 +90,7 @@ for example:
 1 2 4 5 6 3
 
 
-< Merge sort >
+# Merge sort
 
 This algorithm sorts an array by using the divide and conquer technique. We split the array in smaller
 pieces and then merge every piece in the correct order
@@ -112,7 +115,7 @@ To implement this algorithm we need three functions
 3.7 - if the i < leftSize and tempLeft i <= tempRight j, we assign the arr[k] the content of tempLeft i, else the content of tempRight John
 3.8 - we increase the variable of the temp array content we reached
 
-< Quick sort >
+# Quick sort
 
 This algorithm works by selecting a pivot from an array and placing every smaller items on the right
 We need four functions for this
