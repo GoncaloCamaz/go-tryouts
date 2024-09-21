@@ -11,3 +11,9 @@ does not want to board or disembark. However, the deadlock problem still persist
 accross the fan-in pattern where multiple go routines write to a single go routine via a channel. 
 To implement this, I will try to implement this pattern but with some refactors, for exemple, merging 
 board, disembark and ignore channel into only one channel and add a struct to represent the passenger response.
+
+So I tried to apply a fan in pattern by listening to the channel and appending the results to an array and later read by the train.
+However, this solution was making dead locks to happen after one passenger got out of the train.
+
+To fix the issue, i removed the fan in pattern and replaced by an passenger active array and then added a wait group to wait 
+for all active passengers to answer. This fixed the issue and now the train exercise is working just fine.
