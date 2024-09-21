@@ -1,3 +1,6 @@
+Udemy course first example
+==============
+
 In this example, we will be looking into wait groups and go routines.
 
 The objective is to learn about how to create go routines and avoid getting dead locks.

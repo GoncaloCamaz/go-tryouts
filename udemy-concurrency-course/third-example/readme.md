@@ -1,3 +1,7 @@
+Udemy concurrency course - Dining Philosophers
+==============
+
+
 In this example, we will be working with The Dining Philosophers problem.
 
 Five Philosophers live in a house together, and they always dine together at the same table, sitting in the same place.

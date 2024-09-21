@@ -1,7 +1,7 @@
 Concurrency overview
 ==============
 
-*** Channels or Wait Groups ***
+# Channels or Wait Groups
 
 Wait groups are used for synchronization, channels are used to comunicate between go routines.
 
@@ -32,7 +32,7 @@ Therefore, a unbuffered channel is always full!!
 
 msgch := make(chan int, 10) // 10 being the number of ints the channel can accept
 
-# Unbuffered channels --
+# Unbuffered channels
 
 msgch := make(chan int)
 

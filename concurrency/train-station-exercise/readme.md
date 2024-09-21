@@ -1,7 +1,7 @@
 Train station exercise
 ==============
 
-*** First steps ***
+# First steps
 
 In this folder i will implement a problem that takes use of some of the go concurrency mechanisms.
 The idea behind the execise is to have a train that follows a path indefinitly. The train has a capacity

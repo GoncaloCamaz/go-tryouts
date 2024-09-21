@@ -1,8 +1,6 @@
 Train station exercise 2
 ==============
 
-*** A broadcasting problem ***
-
 # Problem statement
 
 As we learned in the exercise number 1, the implemented solution only works fine with one passenger.
