@@ -5,8 +5,8 @@ Concurrency Overview
 
 Wait groups are used for synchronization, channels are used to communicate between go routines.
 
-To use a wait group we should say how many go routines we are going to have. Then, in each go routing, we 
-need to say that the routing is done with 
+To use a wait group we should say how many go routines we are going to have. Then, in each go routine, we 
+need to say that the routine is done with 
 ```
 wg.Done()
 ```
