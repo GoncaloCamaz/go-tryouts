@@ -187,7 +187,14 @@ func main() {
 	}
 }
 ```
-## Let's implement a generator...
+## Let's implement a pipeline with a generator and some slow calculations in the middle of the pipeline..
+
+Here we will generate random numbers and take a certain amount of numbers from that generator. Then, we will
+check which numbers are prime numbers but, this operation is going to be a litle bit intensive for us to test some patterns.
+
+To solve this issue, we can use some known patterns like fan-in and fan-out to try to speed up and do more calculations concurrently
+
+Bellow we have the naive approach where we do not use this patterns.
 
 ```
 // This will be our generator
@@ -208,15 +215,147 @@ func repeatFunc[T any, K any](done <-chan K, fn func() T) <-chan T {
 	return stream
 }
 
+func take[T any, K any](done <-chan K, stream <-chan T, n int) <- chan T {
+	taken := make(chan T)
+	go func() {
+		defer close(taken)
+		for i := 0; i < n; i++ {
+			select {
+				case <-done:
+					return
+				// this means we are writing into taken
+				case taken <- <-stream:
+			}
+		}
+	}()
+
+	return taken
+}
+
+// this function is really slow but its just to expose the problem...
+func primeFinder(done <- chan int, randIntStream <-chan int) <-chan int {
+	isPrime := func(randomInt int) bool {
+		for i := randomInt -1; i > 1; i-- {
+			if randomInt%i == 0 {
+				return false
+			}
+		}
+		return true
+	}
+
+	primes := make(chan int)
+	go func() {
+		defer close(primes)
+		for {
+			select {
+			case <-done:
+				return
+			case randomInt := <-randIntStream:
+				if isPrime(randomInt) {
+					primes <- randomInt
+				}
+			}
+		}
+	}()
+
+	return primes
+}
+
 func main() {
 	done := make(chan int)
 	defer close(done)
 
 	randomNumberFetcher := func() int { return rand.Intn(500000) }
+	randIntStream := repeatFunc(done, randomNumberFetcher)
 
-	for rand := range repeatFunc(done, randomNumberFetcher) {
+	primeStream := primeFinder(done, randIntStream)
+
+	for rand := range take(done, primeStream, 10) {
 		fmt.Println(rand)
 	}
+}
+```
 
+The problem above is that, the primeFinder is really slow... We could improve this by distributing the calculation by multiple
+go routines...
+
+How? using the fan-out to split the calculations into several go routines and then fan-in to merge the results into one channel.
+
+Starting by the fan-out problem, we want to distribute the load into several channels. However, how much can we really improve the problem? It would be a good idea to know how many cpu's we have available 
+
+```
+func main() {
+	done := make(chan int)
+	defer close(done)
+
+	randomNumberFetcher := func() int { return rand.Intn(500000) }
+	randIntStream := repeatFunc(done, randomNumberFetcher)
+
+	// fan out - split the calculations and distribute workload in the amount of cpu's we have available
+	CPUCount := runtime.NumCPU()
+	// we create an array with <CPUCount> channels
+	primeFinderChannels := make([]<-chan int, CPUCount)
+	for i:= 0; i < CPUCount; i++ {
+		// to each channel we assign the stream coming from primeFinder
+		primeFinderChannels[i] = primeFinder(done, randIntStream)
+	}
+}
+```
+
+Now, let's merge everything back together...
+
+
+```
+func fanIn[T any](done <-chan int, channels ...<-chan T) <-chanT {
+	var wg sync.WaitGroup
+	fannedInStream := make(chan T)
+
+	transfer := func(c <-chan T) {
+		defer wg.Done()
+		for i := rance c {
+			select {
+			case <- done:
+				return
+			case fannedIntStream <- i:
+			}
+		}
+	}
+
+	for _, c := channels {
+		// we need to add a wait group to wait for each transfer to finish!
+		wg.Add(1)
+		go transfer(c)
+	}
+
+	go func() {
+		wg.Wait()
+		close(fannedInStream)
+	}()
+
+	return fannedInStream
+}
+
+
+func main() {
+	done := make(chan int)
+	defer close(done)
+
+	randomNumberFetcher := func() int { return rand.Intn(500000) }
+	randIntStream := repeatFunc(done, randomNumberFetcher)
+
+	// fan out - split the calculations and distribute workload
+	CPUCount := runtime.NumCPU()
+	// we want to put on this channel the results of the primeFinder results
+	primeFinderChannels := make([]<-chan int, CPUCount)
+	for i:= 0; i < CPUCount; i++ {
+		primeFinderChannels[i] = primeFinder(done, randIntStream)
+	}
+
+	// fan in - merge all channels results into only one channel!
+	fannedInStream := fanIn(done, primeFinderChannels...)
+
+	for rand := range take(done, fannedInStream, 10) {
+		fmt.Prinln(rand)
+	}
 }
 ```
