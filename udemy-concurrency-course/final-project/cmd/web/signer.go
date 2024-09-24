@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/bwmarrin/go-alone"
 	"strings"
 	"time"
+
+	goalone "github.com/bwmarrin/go-alone"
 )
 
 const secret = "abc123abc123abc123"

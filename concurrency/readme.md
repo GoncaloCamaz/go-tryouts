@@ -30,9 +30,39 @@ Therefore, a unbuffered channel is always full!!
 
 # Buffered channels
 
+We can use Buffered channels to do asynchronous communication since, the go routine sending data to the channel will not block
+by waiting until someone reads from the channel.
+We can simply read the information later from the channel and proceed...
+
 msgch := make(chan int, 10) // 10 being the number of ints the channel can accept
 
+Considering the example bellow:
+
+We want to send three chars through a channel
+
+func main() {
+	charChannel := make(chan string, 3)
+	chars := []string{"a", "b", "c"}
+
+	for _, s := range chars {
+		select {
+		case charChannel <- s:
+		}
+	}
+
+	// important to close the channel
+	close(charChannel)
+
+	// we can now loop through the result
+	for result := range charChannel {
+		fmt.Println(result)
+	}
+}
+
 # Unbuffered channels
+
+Unbuffered channels are used to do synchronous communication because, since there is no capacity, we must be ready to read when we send data.
+If not, the go routine will block its execution.
 
 msgch := make(chan int)
 
@@ -65,3 +95,118 @@ func main() {
 To use unbuffered channels, we need to be ready to read before start writting.
 
 ---
+
+# Important Examples
+
+## Lets say we want the main routine to cancel children go routines that might be running without stopping...
+
+We can create a done channel!
+
+// please note that this is a read only channel here (<-chan)
+func doWork(done <-chan bool) {
+	for {
+		select {
+		case <- done:
+			fmt.Println("Finishing work...")
+			return
+		default:
+			fmt.Println("Doing some random work that is taking forever...")
+		}
+	}
+}
+
+func main() {
+	done := make(chan bool)
+
+	go doWork(done)
+
+	time.Sleep(time.Second * 3)
+
+	// when this done channel is closed, the doWork go routine will receive the signal and stop due to the return call.
+	close(done)
+}
+
+## Lets implement a pipeline...
+
+Lets imagine that we have a slice with numbers and we want to perform some operations on those numbers. We can create a "pipeline" and execute those
+operations seperatly.
+
+[1, 3, 6, 4] ---> stage 1 ---> stage 2 ---> ["1", "9", "36", "16"]
+
+// please note that the functions bellow are not blocking because we are returning the channels.
+// This means that we are writting into a channel but we are passing it to the next go routine which will
+// read from it
+func sliceToChannel(nums []int) <-chan int {
+	out := make(chan int)
+	go func() {
+		for _, n := range nums {
+			out <- n
+		}
+
+		close(out)
+	}()
+
+	return out
+}
+
+func sq(in <-chan int) <-chan int {
+	out := make(chan int)
+	
+	go func() {
+		for _, n := range in {
+			out <- n * n
+		}
+
+		close(out)
+	}()
+
+	return out
+}
+
+func main() {
+	nums := []int{2, 3, 4, 7, 1}
+
+	// start pipeline
+	//stage 1 - convert num slice into channel
+	dataChannel := sliceToChannel(nums)
+
+	//stage 2 - pass output from stage 1 to another stage
+	finalChannel := sq(dataChannel)
+
+	// stage 3 - end of the pipeline where we will print the result
+	for _, n := range finalChannel {
+		fmt.Println(n)
+	}
+}
+
+## Lets implement a generator...
+
+// this will be our generator
+func repeatFunc[T any, K any](done <-chan K, fn func() T) <-chan T {
+	stream := make(chan T)
+
+	go func() {
+		defer close(stream)
+		for {
+			select {
+			case <- done:
+				return
+			case stream <- fn(): 
+			}
+		}
+	}()
+
+	return stream
+}
+
+func main() {
+	done := make(chan int)
+	defer close(done)
+
+	randomNumberFetcher := func() int { return rand.Intn(500000) }
+
+	for rand := range repeatFunc(done, randomNumberFetcher) {
+		fmt.Println(rand)
+	}
+
+}
