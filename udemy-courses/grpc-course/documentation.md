@@ -5,9 +5,9 @@ gRPC uses protocol buffers for communications. This buffers have smaller content
 JSON: 52 bytes (compressed)
 ```
 {
-	"age": 26,
-	"first_name": "Clement",
-	"last_name": "JEAN"
+    "age": 26,
+    "first_name": "Clement",
+    "last_name": "JEAN"
 }
 ```
 
@@ -16,9 +16,9 @@ gRPC Protocol Buffer: 17 bytes
 syntax = "proto3"
 
 message Person {
-	uint32 age = 1
-	string first_name = 2
-	string last_name = 3
+    uint32 age = 1
+    string first_name = 2
+    string last_name = 3
 }
 ```
 
