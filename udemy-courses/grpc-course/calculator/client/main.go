@@ -3,7 +3,7 @@ package main
 import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	pb "grpc-course/greet/proto"
+	pb "grpc-course/calculator/proto"
 	"log"
 )
 
@@ -17,7 +17,7 @@ func main() {
 		log.Fatalf("Failed to dial: %v\n", err)
 	}
 
-	c := pb.NewGreetServiceClient(conn)
+	c := pb.NewCalculatorServiceClient(conn)
 
-	doGreet(c)
+	doSum(c)
 }
