@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CalculatorService_Sum_FullMethodName = "/calculator.CalculatorService/Sum"
+	CalculatorService_Sum_FullMethodName    = "/calculator.CalculatorService/Sum"
+	CalculatorService_Primes_FullMethodName = "/calculator.CalculatorService/Primes"
 )
 
 // CalculatorServiceClient is the client API for CalculatorService service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CalculatorServiceClient interface {
 	Sum(ctx context.Context, in *SumRequest, opts ...grpc.CallOption) (*SumResponse, error)
+	Primes(ctx context.Context, in *PrimeRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[PrimeResponse], error)
 }
 
 type calculatorServiceClient struct {
@@ -47,11 +49,31 @@ func (c *calculatorServiceClient) Sum(ctx context.Context, in *SumRequest, opts 
 	return out, nil
 }
 
+func (c *calculatorServiceClient) Primes(ctx context.Context, in *PrimeRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[PrimeResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &CalculatorService_ServiceDesc.Streams[0], CalculatorService_Primes_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[PrimeRequest, PrimeResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type CalculatorService_PrimesClient = grpc.ServerStreamingClient[PrimeResponse]
+
 // CalculatorServiceServer is the server API for CalculatorService service.
 // All implementations must embed UnimplementedCalculatorServiceServer
 // for forward compatibility.
 type CalculatorServiceServer interface {
 	Sum(context.Context, *SumRequest) (*SumResponse, error)
+	Primes(*PrimeRequest, grpc.ServerStreamingServer[PrimeResponse]) error
 	mustEmbedUnimplementedCalculatorServiceServer()
 }
 
@@ -64,6 +86,9 @@ type UnimplementedCalculatorServiceServer struct{}
 
 func (UnimplementedCalculatorServiceServer) Sum(context.Context, *SumRequest) (*SumResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Sum not implemented")
+}
+func (UnimplementedCalculatorServiceServer) Primes(*PrimeRequest, grpc.ServerStreamingServer[PrimeResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method Primes not implemented")
 }
 func (UnimplementedCalculatorServiceServer) mustEmbedUnimplementedCalculatorServiceServer() {}
 func (UnimplementedCalculatorServiceServer) testEmbeddedByValue()                           {}
@@ -104,6 +129,17 @@ func _CalculatorService_Sum_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CalculatorService_Primes_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(PrimeRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(CalculatorServiceServer).Primes(m, &grpc.GenericServerStream[PrimeRequest, PrimeResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type CalculatorService_PrimesServer = grpc.ServerStreamingServer[PrimeResponse]
+
 // CalculatorService_ServiceDesc is the grpc.ServiceDesc for CalculatorService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -116,6 +152,12 @@ var CalculatorService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CalculatorService_Sum_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Primes",
+			Handler:       _CalculatorService_Primes_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "calculator.proto",
 }
