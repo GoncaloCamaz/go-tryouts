@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package calculator;
+
+option go_package = "grpc-course/calculator/proto";
+
+message AvgRequest {
+  int64 numbers = 1;
+}
+
+message AvgResponse {
+  double result = 1;
+}
