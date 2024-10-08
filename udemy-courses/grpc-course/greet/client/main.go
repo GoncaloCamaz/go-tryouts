@@ -24,5 +24,7 @@ func main() {
 	// Server Streaming, client sends one request
 	//doGreetManyTimes(c)
 	// Client Streaming, server returns one response
-	doLongGreet(c)
+	//doLongGreet(c)
+	// Bi-Directional Streaming
+	doGreetEveryone(c)
 }
