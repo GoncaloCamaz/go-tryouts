@@ -5,6 +5,7 @@ import (
 	pb "grpc-course/greet/proto"
 	"io"
 	"log"
+	"sync"
 	"time"
 )
 
@@ -23,7 +24,9 @@ func doGreetEveryone(c pb.GreetServiceClient) {
 		{FirstName: "Jane"},
 	}
 
-	waitc := make(chan struct{})
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+
 	// Sends a bunch of messages to the server (go routine)
 	go func() {
 		for _, req := range reqs {
@@ -33,6 +36,7 @@ func doGreetEveryone(c pb.GreetServiceClient) {
 		}
 
 		stream.CloseSend()
+		wg.Done()
 	}()
 
 	// Receives a bunch of messages from the server (go routine)
@@ -52,9 +56,7 @@ func doGreetEveryone(c pb.GreetServiceClient) {
 			log.Printf("Received response: %v\n", res.GetResult())
 		}
 
-		close(waitc)
+		wg.Done()
 	}()
-
-	// Block until everything is done
-	<-waitc
+	wg.Wait()
 }
