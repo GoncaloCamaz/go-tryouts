@@ -19,5 +19,10 @@ func main() {
 
 	c := pb.NewGreetServiceClient(conn)
 
-	doGreetManyTimes(c)
+	// Unary RPC, client sends one request and server returns one response
+	//doGreet(c)
+	// Server Streaming, client sends one request
+	//doGreetManyTimes(c)
+	// Client Streaming, server returns one response
+	doLongGreet(c)
 }
