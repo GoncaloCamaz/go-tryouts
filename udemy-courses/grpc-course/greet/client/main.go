@@ -2,7 +2,7 @@ package main
 
 import (
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 	pb "grpc-course/greet/proto"
 	"log"
 	"time"
@@ -11,7 +11,24 @@ import (
 var addr string = "localhost:50051"
 
 func main() {
-	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	tls := true // change this to false if needed
+	opts := []grpc.DialOption{}
+
+	if tls {
+		certFile := "ssl/ca.crt"
+		creds, err := credentials.NewClientTLSFromFile(certFile, "")
+
+		if err != nil {
+			log.Fatalf("Failed to load certificates: %v\n", err)
+		}
+
+		opts = append(opts, grpc.WithTransportCredentials(creds))
+	}
+
+	// use line bellow if tls false
+	//conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	// use line bellow if tls true
+	conn, err := grpc.Dial(addr, opts...)
 	defer conn.Close()
 
 	if err != nil {
@@ -30,5 +47,5 @@ func main() {
 	//doGreetEveryone(c)
 
 	// do greet with timeout
-	doGreetWithDeadline(c, 1*time.Second)
+	doGreetWithDeadline(c, 5*time.Second)
 }

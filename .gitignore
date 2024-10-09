@@ -23,3 +23,5 @@ go.work
 bin/
 .idea/
 udemy-courses/.DS_Store
+udemy-courses/grpc-course/ssl/ca*
+udemy-courses/grpc-course/ssl/server*
