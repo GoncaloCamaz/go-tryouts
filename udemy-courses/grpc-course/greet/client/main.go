@@ -5,6 +5,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	pb "grpc-course/greet/proto"
 	"log"
+	"time"
 )
 
 var addr string = "localhost:50051"
@@ -26,5 +27,8 @@ func main() {
 	// Client Streaming, server returns one response
 	//doLongGreet(c)
 	// Bi-Directional Streaming
-	doGreetEveryone(c)
+	//doGreetEveryone(c)
+
+	// do greet with timeout
+	doGreetWithDeadline(c, 1*time.Second)
 }
