@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package class;
+
+option go_package = "proto/class";
+
+// Service for class information
+service ClassService {
+  rpc GetClassInfo(ClassRequest) returns (ClassResponse);
+}
+
+// Request to get class info by ID
+message ClassRequest {
+  int64 class_id = 1;
+}
+
+// Response with class information
+message ClassResponse {
+  int32 id = 1;
+  string year = 2;
+  int32 number = 3;
+  string updated = 4;
+  string created = 5;
+}
