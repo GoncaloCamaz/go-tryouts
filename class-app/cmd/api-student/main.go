@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
-	classpb "class-app/internal/api-class/handlers/grpc/proto" // Update with the correct import path
+	classpb "class-app/internal/api-class/handlers/grpc/proto"
 	"github.com/labstack/echo/v4"
 	"google.golang.org/grpc"
 )
@@ -26,12 +26,12 @@ func main() {
 	// Start HTTP server for student API
 	e := echo.New()
 
-	e.POST("/student", func(c echo.Context) error {
+	e.POST("/student/list", func(c echo.Context) error {
 		// Handle create student
 		return c.JSON(http.StatusCreated, map[string]string{"message": "Student created"})
 	})
 
-	e.GET("/student/:id", func(c echo.Context) error {
+	e.GET("/student/:id/get", func(c echo.Context) error {
 		// Handle get student by ID and fetch class info via gRPC
 		id, _ := strconv.Atoi(c.Param("id"))
 		classReq := &classpb.ClassRequest{ClassId: int64(id)}
@@ -50,12 +50,12 @@ func main() {
 		})
 	})
 
-	e.PUT("/student/:id", func(c echo.Context) error {
+	e.PUT("/student/:id/update", func(c echo.Context) error {
 		// Handle update student by ID
 		return c.JSON(http.StatusOK, map[string]string{"message": "Student updated"})
 	})
 
-	e.DELETE("/student/:id", func(c echo.Context) error {
+	e.DELETE("/student/:id/delete", func(c echo.Context) error {
 		// Handle delete student by ID
 		return c.JSON(http.StatusOK, map[string]string{"message": "Student deleted"})
 	})

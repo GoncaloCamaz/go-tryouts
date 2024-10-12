@@ -1,7 +1,7 @@
 package responses
 
 import (
-	"final-project/api-student/internal/datamodel"
+	"class-app/internal/api-student/datamodel"
 	"time"
 )
 
