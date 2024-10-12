@@ -16,6 +16,7 @@ services:
       context: .
       dockerfile: ./cmd/api-class/Dockerfile
     container_name: api-class
+    restart: on-failure
     ports:
       - "8081:8081" # REST API
       - "50051:50051" # gRPC server
@@ -34,6 +35,7 @@ services:
       context: .
       dockerfile: ./cmd/api-student/Dockerfile
     container_name: api-student
+    restart: on-failure
     ports:
       - "8082:8082"
     depends_on:
@@ -53,6 +55,7 @@ services:
       context: .
       dockerfile: ./gateway/Dockerfile
     container_name: gateway
+    restart: on-failure
     ports:
       - "8080:8080"
     depends_on:

@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
 package class;
 
 option go_package = "proto/class";
@@ -7,6 +9,7 @@ option go_package = "proto/class";
 // Service for class information
 service ClassService {
   rpc GetClassInfo(ClassRequest) returns (ClassResponse);
+  rpc GetClassList(google.protobuf.Empty) returns (ClassListResponse);
 }
 
 // Request to get class info by ID
@@ -21,4 +24,8 @@ message ClassResponse {
   int32 number = 3;
   string updated = 4;
   string created = 5;
+}
+
+message ClassListResponse {
+  repeated ClassResponse classes = 1;
 }

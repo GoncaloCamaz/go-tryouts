@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/go-pg/pg/v10"
+	"log"
 	"net/http"
 	"time"
 
@@ -21,6 +22,7 @@ type Handler struct {
 func (h *Handler) CreateClass(c echo.Context) error {
 	classDTO := new(ClassDTO.ClassCreate)
 	if err := c.Bind(classDTO); err != nil {
+		log.Printf("Error binding class DTO: %v", err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
@@ -33,6 +35,7 @@ func (h *Handler) CreateClass(c echo.Context) error {
 
 	_, err := h.DB.Model(class).Insert()
 	if err != nil {
+		log.Printf("Error inserting class: %v", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusCreated, class)
@@ -46,8 +49,10 @@ func (h *Handler) GetClass(c echo.Context) error {
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
+			log.Printf("Class not found: %v", err)
 			return c.JSON(http.StatusNotFound, map[string]string{"error": "Class not found"})
 		}
+		log.Printf("Database error: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Database error"})
 	}
 
@@ -61,8 +66,9 @@ func (h *Handler) GetClassList(c echo.Context) error {
 	err := h.DB.Model(&classes).Select()
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return c.JSON(http.StatusNotFound, map[string]string{"error": "Class not found"})
+			return c.JSON(http.StatusNotFound, map[string]string{"error": "No Classes found"})
 		}
+		log.Printf("Database error: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Database error"})
 	}
 
@@ -83,8 +89,10 @@ func (h *Handler) UpdateClass(c echo.Context) error {
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
+			log.Printf("Class with ID: %s not found: %v", id, err)
 			return c.JSON(http.StatusNotFound, map[string]string{"error": "Class not found"})
 		}
+		log.Printf("Database error: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Database error"})
 	}
 
@@ -94,6 +102,7 @@ func (h *Handler) UpdateClass(c echo.Context) error {
 
 	_, err = h.DB.Model(&class).Where("id = ?", id).Update()
 	if err != nil {
+		log.Printf("Error updating class: %v", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 
@@ -107,8 +116,10 @@ func (h *Handler) DeleteClass(c echo.Context) error {
 	_, err := h.DB.Model(&ClassDataModel.Class{}).Where("id = ?", id).Delete()
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
+			log.Printf("Class with ID: %s not found: %v", id, err)
 			return c.JSON(http.StatusNotFound, map[string]string{"error": "Class not found"})
 		}
+		log.Printf("Database error: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Database error"})
 	}
 

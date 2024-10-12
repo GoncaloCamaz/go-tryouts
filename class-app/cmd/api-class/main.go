@@ -3,6 +3,7 @@ package main
 import (
 	grpc2 "class-app/internal/api-class/handlers/grpc"
 	handler "class-app/internal/api-class/handlers/http"
+	utils "class-app/pkg/database"
 	"fmt"
 	"github.com/go-pg/pg/v10"
 	"github.com/labstack/echo/v4"
@@ -10,24 +11,9 @@ import (
 	"os"
 )
 
-// Check if a table exists in the database
-func tableExists(db *pg.DB, tableName string) (bool, error) {
-	var exists bool
-	query := `SELECT EXISTS (
-        SELECT 1 
-        FROM information_schema.tables 
-        WHERE table_name = ?
-    )`
-	_, err := db.QueryOne(pg.Scan(&exists), query, tableName)
-	if err != nil {
-		return false, err
-	}
-	return exists, nil
-}
-
 // Create necessary tables if they do not exist
 func createTables(db *pg.DB) {
-	if exists, err := tableExists(db, "classes"); err != nil {
+	if exists, err := utils.TableExists(db, "classes"); err != nil {
 		log.Fatalf("Error checking classes table existence: %v", err)
 	} else if !exists {
 		createClassesTable := `
@@ -70,7 +56,7 @@ func main() {
 	}()
 
 	db := ConnectDB()
-	createTables(db)
+	go createTables(db)
 	defer db.Close()
 
 	// Create handler instance with DB connection
