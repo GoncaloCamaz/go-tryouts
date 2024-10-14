@@ -3,9 +3,12 @@ package http
 import (
 	classpb "class-app/internal/api-class/handlers/grpc/proto"
 	StudentDataModel "class-app/internal/api-student/datamodel"
-	StudentDTO "class-app/internal/api-student/dto/requests"
+	requestDTO "class-app/internal/api-student/dto/requests"
+	responseDTO "class-app/internal/api-student/dto/responses"
+	"class-app/pkg/utils"
 	"github.com/go-pg/pg/v10"
 	"github.com/labstack/echo/v4"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 	"net/http"
 	"strconv"
@@ -20,7 +23,7 @@ type Handler struct {
 
 // Create Student handles the HTTP POST request to create a student
 func (h *Handler) CreateStudent(c echo.Context) error {
-	studentDTO := new(StudentDTO.StudentCreate)
+	studentDTO := new(requestDTO.StudentCreate)
 	if err := c.Bind(studentDTO); err != nil {
 		log.Printf("Error binding student DTO: %v", err)
 		return c.JSON(http.StatusBadRequest, err)
@@ -54,12 +57,29 @@ func (h *Handler) GetStudent(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Database error"})
 	}
 
-	return c.JSON(http.StatusOK, student)
+	resp, err := h.RPC.GetClassInfo(c.Request().Context(), &classpb.ClassRequest{ClassId: int64(int32(student.ClassId))})
+	if err != nil {
+		log.Printf("Error getting class info: %v", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error getting class info"})
+	}
+
+	var studentDTO = responseDTO.Student{
+		ID:          student.ID,
+		Name:        student.Name,
+		Email:       student.Email,
+		ClassId:     student.ClassId,
+		ClassNumber: int(resp.Number),
+		ClassYear:   resp.Year,
+		Created:     student.Created,
+		Updated:     student.Updated,
+	}
+
+	return c.JSON(http.StatusOK, studentDTO)
 }
 
 func (h *Handler) UpdateStudent(c echo.Context) error {
 	id := c.Param("id")
-	studentDTO := new(StudentDTO.StudentUpdate)
+	studentDTO := new(requestDTO.StudentUpdate)
 	if err := c.Bind(studentDTO); err != nil {
 		log.Printf("Error binding student DTO: %v", err)
 		return c.JSON(http.StatusBadRequest, err)
@@ -103,5 +123,35 @@ func (h *Handler) ListStudents(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Database error"})
 	}
 
-	return c.JSON(http.StatusOK, students)
+	resp, err := h.RPC.GetClassList(c.Request().Context(), &emptypb.Empty{})
+	if err != nil {
+		log.Printf("Error getting class list: %v", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error getting class list"})
+	}
+
+	classList := resp.Classes
+	classMap := utils.Reduce(classList, func(classMap map[int32]*classpb.ClassResponse, class *classpb.ClassResponse) map[int32]*classpb.ClassResponse {
+		classMap[class.Id] = class
+		return classMap
+	}, make(map[int32]*classpb.ClassResponse))
+
+	var studentsDTO []responseDTO.Student
+	for _, student := range students {
+		class, ok := classMap[int32(student.ClassId)]
+		if !ok {
+			log.Printf("Class with ID: %d not found", student.ClassId)
+			return c.JSON(http.StatusNotFound, map[string]string{"error": "Class not found"})
+		}
+
+		studentDTO := responseDTO.Student{
+			ID:          student.ID,
+			Name:        student.Name,
+			Email:       student.Email,
+			ClassId:     student.ClassId,
+			ClassNumber: int(class.Number),
+			ClassYear:   class.Year,
+		}
+		studentsDTO = append(studentsDTO, studentDTO)
+	}
+	return c.JSON(http.StatusOK, studentsDTO)
 }

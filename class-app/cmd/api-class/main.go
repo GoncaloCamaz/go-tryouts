@@ -50,14 +50,14 @@ func ConnectDB() *pg.DB {
 }
 
 func main() {
-	// Start gRPC server for class API
-	go func() {
-		grpc2.StartServer(":50051")
-	}()
-
 	db := ConnectDB()
 	go createTables(db)
 	defer db.Close()
+
+	// Start gRPC server for class API
+	go func(dbConn *pg.DB) {
+		grpc2.StartServer(":50051", dbConn)
+	}(db)
 
 	// Create handler instance with DB connection
 	h := handler.Handler{DB: db}

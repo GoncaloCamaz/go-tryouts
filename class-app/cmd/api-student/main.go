@@ -59,6 +59,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Could not connect to api-class: %v", err)
 	}
+	
 	classClient = classpb.NewClassServiceClient(conn)
 	defer conn.Close()
 
