@@ -5,9 +5,9 @@ import (
 )
 
 type Student struct {
-	ID          int       `json:"id"`
-	ClassId     int       `json:"class_id"`
-	ClassNumber int       `json:"class_number"`
+	ID          int64     `json:"id"`
+	ClassId     int64     `json:"class_id"`
+	ClassNumber int64     `json:"class_number"`
 	ClassYear   string    `json:"class_year"`
 	Name        string    `json:"name"`
 	Email       string    `json:"email"`

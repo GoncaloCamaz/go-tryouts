@@ -68,7 +68,7 @@ func (h *Handler) GetStudent(c echo.Context) error {
 		Name:        student.Name,
 		Email:       student.Email,
 		ClassId:     student.ClassId,
-		ClassNumber: int(resp.Number),
+		ClassNumber: resp.Number,
 		ClassYear:   resp.Year,
 		Created:     student.Created,
 		Updated:     student.Updated,
@@ -105,7 +105,7 @@ func (h *Handler) DeleteStudent(c echo.Context) error {
 
 	num, _ := strconv.Atoi(id)
 
-	student := &StudentDataModel.Student{ID: num}
+	student := &StudentDataModel.Student{ID: int64(num)}
 	_, err := h.DB.Model(student).WherePK().Delete()
 	if err != nil {
 		log.Printf("Error deleting student: %v", err)
@@ -130,14 +130,14 @@ func (h *Handler) ListStudents(c echo.Context) error {
 	}
 
 	classList := resp.Classes
-	classMap := utils.Reduce(classList, func(classMap map[int32]*classpb.ClassResponse, class *classpb.ClassResponse) map[int32]*classpb.ClassResponse {
+	classMap := utils.Reduce(classList, func(classMap map[int64]*classpb.ClassResponse, class *classpb.ClassResponse) map[int64]*classpb.ClassResponse {
 		classMap[class.Id] = class
 		return classMap
-	}, make(map[int32]*classpb.ClassResponse))
+	}, make(map[int64]*classpb.ClassResponse))
 
 	var studentsDTO []responseDTO.Student
 	for _, student := range students {
-		class, ok := classMap[int32(student.ClassId)]
+		class, ok := classMap[student.ClassId]
 		if !ok {
 			log.Printf("Class with ID: %d not found", student.ClassId)
 			return c.JSON(http.StatusNotFound, map[string]string{"error": "Class not found"})
@@ -148,7 +148,7 @@ func (h *Handler) ListStudents(c echo.Context) error {
 			Name:        student.Name,
 			Email:       student.Email,
 			ClassId:     student.ClassId,
-			ClassNumber: int(class.Number),
+			ClassNumber: class.Number,
 			ClassYear:   class.Year,
 		}
 		studentsDTO = append(studentsDTO, studentDTO)

@@ -19,9 +19,9 @@ message ClassRequest {
 
 // Response with class information
 message ClassResponse {
-  int32 id = 1;
+  int64 id = 1;
   string year = 2;
-  int32 number = 3;
+  int64 number = 3;
   string updated = 4;
   string created = 5;
 }

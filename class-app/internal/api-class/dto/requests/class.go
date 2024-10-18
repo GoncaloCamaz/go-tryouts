@@ -1,15 +1,15 @@
 package requests
 
 type ClassCreate struct {
-	Number int    `json:"number"`
+	Number int64  `json:"number"`
 	Year   string `json:"year"`
 }
 
 type ClassUpdate struct {
-	Number int    `json:"number"`
+	Number int64  `json:"number"`
 	Year   string `json:"year"`
 }
 
 type ClassId struct {
-	ID int `json:"id"`
+	ID int64 `json:"id"`
 }

@@ -46,8 +46,8 @@ func (s *Server) GetClassInfo(ctx context.Context, in *pb.ClassRequest) (*pb.Cla
 	}
 
 	return &pb.ClassResponse{
-		Id:      int32(class.ID),
-		Number:  int32(class.Number),
+		Id:      class.ID,
+		Number:  class.Number,
 		Year:    class.Year,
 		Created: class.Created.Format(time.RFC3339),
 		Updated: class.Updated.Format(time.RFC3339),
@@ -68,8 +68,8 @@ func (s *Server) GetClassList(_ context.Context, _ *emptypb.Empty) (*pb.ClassLis
 	var classList []*pb.ClassResponse
 	for _, class := range classes {
 		classList = append(classList, &pb.ClassResponse{
-			Id:      int32(class.ID),
-			Number:  int32(class.Number),
+			Id:      class.ID,
+			Number:  class.Number,
 			Year:    class.Year,
 			Created: class.Created.Format(time.RFC3339),
 			Updated: class.Updated.Format(time.RFC3339),

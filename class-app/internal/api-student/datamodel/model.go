@@ -9,8 +9,8 @@ import (
 type Student struct {
 	bun.BaseModel `bun:"table:student,alias:student"`
 
-	ID      int       `bun:"id,pk,autoincrement"`
-	ClassId int       `bun:",notnull,type:int"`
+	ID      int64     `bun:"id,pk,autoincrement"`
+	ClassId int64     `bun:",notnull,type:int"`
 	Name    string    `bun:",notnull,type:varchar(64)"`
 	Email   string    `bun:",notnull,type:varchar(64)"`
 	Created time.Time `bun:",notnull,default:current_timestamp"`

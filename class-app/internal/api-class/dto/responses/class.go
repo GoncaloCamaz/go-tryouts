@@ -6,8 +6,8 @@ import (
 )
 
 type Class struct {
-	ID      int       `json:"id"`
-	Number  int       `json:"number"`
+	ID      int64     `json:"id"`
+	Number  int64     `json:"number"`
 	Year    string    `json:"year"`
 	Created time.Time `json:"created" format:"date-time"`
 	Updated time.Time `json:"updated" format:"date-time"`

@@ -24,6 +24,20 @@ message Person {
 
 This saves bandwidth and storage space because messages are smaller. Also, being serialized, it requires less CPU.
 
+# Generate Proto Files
+
+How to generate proto files for a proto file with name class.proto
+
+```
+protoc --go_out=. --go-grpc_out=. --go_opt=paths=source_relative --go-grpc_opt=paths=source_relative class.proto
+```
+
+To generate proto files without the require_unimplemented_servers flag, use the following command:
+
+```
+protoc --go_out=. --go-grpc_out=require_unimplemented_servers=false:. --go_opt=paths=source_relative --go-grpc_opt=paths=source_relative class.proto
+```
+
 # About gRPC #
 
 gRPC relies on HTTP2 which is much faster than HTTP1.1. HTTP2 allows us to have one single TCP connection instead of several tcp connections that need to be established in the version 1.1.
